@@ -26,15 +26,11 @@ export class EmailController {
     };
 
     const success = await this.emailService.sendEmail(mailInfo);
-    const openCount = this.trackingController.getOpenCount();
-    console.log(`Email opened ${openCount} times.`);
     
     if (success) {
       return 'Email sent successfully!';
     } else {
       return 'Failed to send email.';
     }
-
-    
   }
 }
