@@ -8,8 +8,8 @@ export class EmailController {
     private repository: EmailRepository,
   ) {}
 
-  @Get('send-email')
-  async sendEmail() {
+  @Post('send-email')
+  async sendEmail(): Promise<void> {
     await this.repository.sendEmail('productA');
   }
 }
