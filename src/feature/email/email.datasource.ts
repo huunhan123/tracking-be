@@ -6,6 +6,7 @@ import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { DESTINATION, EMAILS_SENDER, EMAIL_TEMPLATES } from './email.data';
 import { EmailSenderEntity } from './email.entity';
 import { Destination } from './email.type';
+import { ReportRepository } from '../report/report.repository';
 
 @Injectable()
 export class EmailDatasource {
@@ -16,6 +17,7 @@ export class EmailDatasource {
   constructor(
     private mailerService: MailerService,
     private configs: ConfigService,
+    private reportRepository: ReportRepository,
   ) {}
 
   async sendEmail(productName: string): Promise<void> {
