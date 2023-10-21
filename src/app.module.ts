@@ -12,6 +12,7 @@ import { FeaturesModule } from './feature/feature.module';
 import { APP_ROUTES } from './app.routes';
 // import { CoreModule } from './core/core.module';
 import { ConfigModule } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
       envFilePath: `${__dirname}/core/config/.env.${process.env.ENV}`,
     }),
+    MongooseModule.forRoot('mongodb://158.179.174.23:27017/test')
   ],
   controllers: [AppController],
   providers: [AppService],

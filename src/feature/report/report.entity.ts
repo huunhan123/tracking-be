@@ -3,4 +3,5 @@ export interface ReportEntity {
   product: string,
   sender: string,
   template: string,
+  sendAt: string,
 }

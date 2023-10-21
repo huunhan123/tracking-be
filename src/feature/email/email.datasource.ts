@@ -3,29 +3,32 @@ import { ISendMailOptions, MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 
-import { DESTINATION, EMAILS_SENDER, EMAIL_TEMPLATES } from './email.data';
 import { EmailSenderEntity } from './email.entity';
-import { Destination } from './email.type';
 import { ReportRepository } from '../report/report.repository';
+import { SenderRepository } from './sender/sender.repository';
+import { DestinationRepository } from './destination/destination.repository';
+import { TemplateRepository } from './template/template.repository';
+import { ReportRequestDto } from '../report/report.dto';
+import { ReportEntity } from '../report/report.entity';
 
 @Injectable()
 export class EmailDatasource {
-  private readonly EMAILS_SENDER = EMAILS_SENDER;
-  private readonly EMAIL_TEMPLATES = EMAIL_TEMPLATES;
-  private readonly DESTINATION = DESTINATION;
-
   constructor(
     private mailerService: MailerService,
     private configs: ConfigService,
     private reportRepository: ReportRepository,
+    private senderRepository: SenderRepository,
+    private destinationRepository:DestinationRepository,
+    private templateRepository: TemplateRepository,
   ) {}
 
   async sendEmail(productName: string): Promise<void> {
-    const template = this.getEmailTemplateUrl(productName);
-    const destinations = this.getDestinations(1);
+    const template = await this.getEmailTemplateUrl(productName);
+    const destinations = await this.destinationRepository.getDestinations();
+    const reports: ReportRequestDto[] = [];
 
-    const sendMailPromise = destinations.map(destination => {
-      const senderMail = this.getSenderMail();
+    const sendMailPromise = destinations.map(async (destination) => {
+      const senderMail = await this.senderRepository.getRandomSender();
       this.updateTransporter(senderMail)
 
       const sendMailOptions: ISendMailOptions = {
@@ -42,21 +45,31 @@ export class EmailDatasource {
         },
         transporterName: 'default',
       };
-  
+      const report: ReportEntity = {
+        user: destination.email,
+        product: productName,
+        sender: senderMail.email,
+        template: template,
+        sendAt: new Date().getTime().toString(),
+      };
+      reports.push(report);
+
       this.mailerService.sendMail(sendMailOptions);
     });
     
-    await Promise.all(sendMailPromise);
+    const sendMail = await Promise.allSettled(sendMailPromise);
+
+    sendMail.forEach((send, index) => {
+      if(send.status === 'fulfilled') {
+        this.reportRepository.addReport(reports[index]);
+      }
+    });
   }
 
-  private getSenderMail(): EmailSenderEntity {
-    return this.EMAILS_SENDER[Math.floor(Math.random() * this.EMAILS_SENDER.length)];
-  }
+  private async getEmailTemplateUrl(productName: string): Promise<string> {
+    const emailTemplate = await this.templateRepository.getTemplate(productName);
 
-  private getEmailTemplateUrl(productName: string): string {
-    const emailTemplate = this.EMAIL_TEMPLATES.find(el => el.name.toLowerCase() === productName.toLowerCase());
-
-    return emailTemplate?.url || '';
+    return emailTemplate.url || '';
   }
 
   private updateTransporter(sender: EmailSenderEntity): void {    
@@ -70,9 +83,5 @@ export class EmailDatasource {
     };
     
     this.mailerService.addTransporter('default', transport);
-  }
-
-  private getDestinations(limit: number): Destination[] {
-    return this.DESTINATION;
   }
 }
