@@ -2,15 +2,29 @@ import { Injectable } from '@nestjs/common';
 
 import { SenderDatasource } from './sender.datasource';
 import { EmailSenderRequestDto } from './sender.dto';
-import { EmailSenderModel } from '../email.model';
+import { Queries } from 'src/shared/service/query/query.type';
+import { QueryService } from 'src/shared/service/query/query.service';
+import { EmailSenderModel } from './sender.model';
 
 @Injectable()
 export class SenderRepository {
-  constructor(private datasource: SenderDatasource) {}
+  constructor(
+    private datasource: SenderDatasource,
+    private queriesService: QueryService,
+    ) {}
 
-  async getSenders(): Promise<EmailSenderModel[]> {
+  async getSenders(queries: Queries): Promise<{ data: EmailSenderModel[]; totalRows: number }>{
     const entities = await this.datasource.getSenders();
-    return entities.map(entity => new EmailSenderModel(entity));
+    const models = entities.map(entity => new EmailSenderModel(entity));
+
+    const senderQueries = this.queriesService.applyQueries(
+      models,
+      queries,
+      (a: EmailSenderModel, b: EmailSenderModel): number =>
+        this.compareProduct(a, b, queries.orderBy),
+    );
+
+    return senderQueries;
   }
 
   async addSender(senders: EmailSenderRequestDto[]): Promise<void> {
@@ -19,7 +33,32 @@ export class SenderRepository {
 
   async getRandomSender(): Promise<EmailSenderModel> {
     const entity = await this.datasource.getRandomSender();
+    const model = new EmailSenderModel(entity);
+
+    return model;
+  }
+
+  private compareProduct(
+    a: EmailSenderModel,
+    b: EmailSenderModel,
+    field?: string,
+  ): number {
+    let first: string | number | boolean = a['id'];
+    let second: string | number | boolean = b['id'];
     
-    return entity;
+    if (field) {
+      first = a[field];
+      second = b[field];
+    }
+
+    if (first < second) {
+      return -1;
+    }
+
+    if (first > second) {
+      return 1;
+    }
+
+    return 0;
   }
 }

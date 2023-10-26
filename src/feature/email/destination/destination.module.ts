@@ -20,6 +20,9 @@ import { EmailDestination, EmailDestinationSchema } from './destination.schema';
   providers: [
     DestinationDatasource,
     DestinationRepository,
-  ]
+  ],
+  exports: [
+    DestinationRepository,
+  ],
 })
 export class DestinationModule {}

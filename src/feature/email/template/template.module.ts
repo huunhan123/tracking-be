@@ -20,6 +20,9 @@ import { EmailTemplate, EmailTemplateSchema } from './template.shema';
   providers: [
     TemplateDatasource,
     TemplateRepository,
-  ]
+  ],
+  exports: [
+    TemplateRepository,
+  ],
 })
 export class TemplateModule {}

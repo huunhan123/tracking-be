@@ -1,18 +1,25 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, ValidationPipe } from '@nestjs/common';
 
 import { SenderRepository } from './sender.repository';
-import { EmailSenderRequestDto } from './sender.dto';
+import { EmailSenderRequestDto, EmailSenderResponseDto } from './sender.dto';
+import { SenderView } from './sender.view';
+import { ResponseModel } from 'src/shared/model/response.model';
+import { Queries } from 'src/shared/service/query/query.type';
 
 @Controller()
 export class SenderController {
   constructor(
     private repository: SenderRepository,
+    private view: SenderView,
   ) {}
 
-  // @Get()
-  // async getSender(): Promise<void> {
-  //   await this.repository.getSender();
-  // }
+  @Get()
+  async getSenders(@Query(ValidationPipe) queries: Queries): Promise<ResponseModel<EmailSenderResponseDto[]>> {
+    const data = await this.repository.getSenders(queries);
+
+    const response = this.view.createSenders(data);
+    return response;
+  }
 
   @Post('add')
   async addSender(
