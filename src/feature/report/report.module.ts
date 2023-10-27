@@ -21,6 +21,7 @@ import { ReportTemplate, ReportTemplateSchema } from './report.shema';
   ],
   exports: [
     ReportRepository,
+    ReportDatasource,
   ],
 })
 export class ReportModule {}

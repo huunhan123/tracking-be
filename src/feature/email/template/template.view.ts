@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 
-import { ReportModel } from './report.model';
-import { ReportResponseDto } from './report.dto';
+import { EmailTemplateResponseDto } from './template.dto';
 import { ResponseModel } from 'src/shared/model/response.model';
+import { EmailTemplateModel } from './template.model';
 
 @Injectable()
-export class ReportView {
-  createReport(data: {
-    data: ReportModel[];
+export class TemplateView {
+  createTemplates(data: {
+    data: EmailTemplateModel[];
     totalRows: number;
-  }): ResponseModel<ReportResponseDto[]> {
+  }): ResponseModel<EmailTemplateResponseDto[]> {
     
     return {
       data: data.data,

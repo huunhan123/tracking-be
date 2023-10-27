@@ -11,20 +11,20 @@ export class SenderRepository {
   constructor(
     private datasource: SenderDatasource,
     private queriesService: QueryService,
-    ) {}
+  ) {}
 
-  async getSenders(queries: Queries): Promise<{ data: EmailSenderModel[]; totalRows: number }>{
+  async getSenders(queries: Queries): Promise<{ data: EmailSenderModel[]; totalRows: number }> {
     const entities = await this.datasource.getSenders();
     const models = entities.map(entity => new EmailSenderModel(entity));
 
-    const senderQueries = this.queriesService.applyQueries(
+    const applyQueries = this.queriesService.applyQueries(
       models,
       queries,
       (a: EmailSenderModel, b: EmailSenderModel): number =>
         this.compareProduct(a, b, queries.orderBy),
     );
 
-    return senderQueries;
+    return applyQueries;
   }
 
   async addSender(senders: EmailSenderRequestDto[]): Promise<void> {

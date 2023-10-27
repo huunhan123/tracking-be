@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Controller, Post, Query, ValidationPipe } from '@nestjs/common';
 
 import { EmailRepository } from './email.repository';
-import { EmailDestinationRequestDto, EmailSenderRequestDto } from './email.dto';
+import { Queries } from 'src/shared/service/query/query.type';
 
 @Controller()
 export class EmailController {
@@ -10,7 +10,7 @@ export class EmailController {
   ) {}
 
   @Post('send-email')
-  async sendEmail(): Promise<void> {
-    await this.repository.sendEmail('productA');
+  async sendEmail(@Query(ValidationPipe) queries: Queries): Promise<void> {
+    await this.repository.sendEmail('productA', queries);
   }
 }

@@ -13,8 +13,7 @@ export class ReportDatasource {
   ) {}
 
   async getReport(): Promise<ReportEntity[]> {
-    //TODO: Get from database
-    return [];
+    return await this.reportTemplateSchema.find().exec();
   }
 
   async addReport(report: ReportRequestDto): Promise<void> {

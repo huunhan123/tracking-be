@@ -22,6 +22,7 @@ import { SenderView } from './sender.view';
     SenderView,
   ],
   exports: [
+    SenderDatasource,
     SenderRepository,
   ],
 })

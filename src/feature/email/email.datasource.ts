@@ -4,31 +4,31 @@ import { ConfigService } from '@nestjs/config';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 import { EmailSenderEntity } from './email.entity';
-import { ReportRepository } from '../report/report.repository';
-import { SenderRepository } from './sender/sender.repository';
-import { DestinationRepository } from './destination/destination.repository';
-import { TemplateRepository } from './template/template.repository';
+import { ReportDatasource } from '../report/report.datasource';
+import { SenderDatasource } from './sender/sender.datasource';
+import { DestinationDatasource } from './destination/destination.datasource';
+import { TemplateDatasource } from './template/template.datasource';
 import { ReportRequestDto } from '../report/report.dto';
-import { ReportEntity } from '../report/report.entity';
+import { Queries } from 'src/shared/service/query/query.type';
 
 @Injectable()
 export class EmailDatasource {
   constructor(
     private mailerService: MailerService,
     private configs: ConfigService,
-    private reportRepository: ReportRepository,
-    private senderRepository: SenderRepository,
-    private destinationRepository:DestinationRepository,
-    private templateRepository: TemplateRepository,
+    private reportDatasource: ReportDatasource,
+    private senderDatasource: SenderDatasource,
+    private destinationDatasource:DestinationDatasource,
+    private templateDatasource: TemplateDatasource,
   ) {}
 
-  async sendEmail(productName: string): Promise<void> {
+  async sendEmail(productName: string, queries: Queries): Promise<void> {
     const template = await this.getEmailTemplateUrl(productName);
-    const destinations = await this.destinationRepository.getDestinations();
+    const destinations = await this.destinationDatasource.getDestinations();
     const reports: ReportRequestDto[] = [];
 
     const sendMailPromise = destinations.map(async (destination) => {
-      const senderMail = await this.senderRepository.getRandomSender();
+      const senderMail = await this.senderDatasource.getRandomSender();
       this.updateTransporter(senderMail)
 
       const sendMailOptions: ISendMailOptions = {
@@ -45,7 +45,7 @@ export class EmailDatasource {
         },
         transporterName: 'default',
       };
-      const report: ReportEntity = {
+      const report: ReportRequestDto = {
         user: destination.email,
         product: productName,
         sender: senderMail.email,
@@ -61,13 +61,13 @@ export class EmailDatasource {
 
     sendMail.forEach((send, index) => {
       if(send.status === 'fulfilled') {
-        this.reportRepository.addReport(reports[index]);
+        this.reportDatasource.addReport(reports[index]);
       }
     });
   }
 
   private async getEmailTemplateUrl(productName: string): Promise<string> {
-    const emailTemplate = await this.templateRepository.getTemplate(productName);
+    const emailTemplate = await this.templateDatasource.getTemplate(productName);
 
     return emailTemplate.url || '';
   }

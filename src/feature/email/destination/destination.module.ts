@@ -1,27 +1,29 @@
 import { Module } from '@nestjs/common';
+
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { DestinationController } from './destination.controller';
-import { TrackingModule } from '../../tracking/tracking.module';
 import { DestinationDatasource } from './destination.datasource';
 import { DestinationRepository } from './destination.repository';
-import { ReportModule } from '../../report/report.module';
 import { EmailDestination, EmailDestinationSchema } from './destination.schema';
+import { SharedModule } from 'src/shared/shared.module';
+import { DestinationView } from './destination.view';
 
 @Module({
   controllers: [
     DestinationController,
   ],
   imports: [
-    TrackingModule,
-    ReportModule,
+    SharedModule,
     MongooseModule.forFeature([{ name: EmailDestination.name, schema: EmailDestinationSchema }]),
   ],
   providers: [
     DestinationDatasource,
     DestinationRepository,
+    DestinationView,
   ],
   exports: [
+    DestinationDatasource,
     DestinationRepository,
   ],
 })

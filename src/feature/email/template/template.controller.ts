@@ -1,18 +1,26 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, ValidationPipe } from '@nestjs/common';
 
 import { TemplateRepository } from './template.repository';
 import { EmailTemplateRequestDto } from './template.dto';
+import { ResponseModel } from 'src/shared/model/response.model';
+import { TemplateView } from './template.view';
+import { Queries } from 'src/shared/service/query/query.type';
 
 @Controller()
 export class TemplateController {
   constructor(
     private repository: TemplateRepository,
+    private view: TemplateView,
   ) {}
 
-  // @Get()
-  // async getTemplate(): Promise<void> {
-  //   await this.repository.getTemplate();
-  // }
+  @Get()
+  async getTemplates(@Query(ValidationPipe) queries: Queries): Promise<ResponseModel<EmailTemplateRequestDto[]>> {
+    const data = await this.repository.getTemplates(queries);
+
+    const response = this.view.createTemplates(data);
+    
+    return response;
+  }
 
   @Post('add')
   async addTemplate(
