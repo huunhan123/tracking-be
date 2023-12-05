@@ -12,6 +12,9 @@ export class EmailDestination extends BaseEntity {
 	
 	@Prop({ required: true })
 	email: string;
+
+	@Prop({ required: true })
+	tag: string;
 }
 
 export const EmailDestinationSchema = SchemaFactory.createForClass(EmailDestination); 

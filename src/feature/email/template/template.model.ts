@@ -5,11 +5,13 @@ export class EmailTemplateModel {
   id: string;
   name: string;
   url: string;
+  tag: string;
 
   constructor(entity: EmailTemplateEntity) {
     this.id = entity._id;
     this.name = entity.name;
     this.url = entity.url;
+    this.tag = entity.tag;
   }
 }
 

@@ -12,6 +12,9 @@ export class EmailSender extends BaseEntity {
 
 	@Prop({ required: true })
 	password: string;
+
+	@Prop({ required: true })
+	tag: string;
 }
 
 export const EmailSenderSchema = SchemaFactory.createForClass(EmailSender);
