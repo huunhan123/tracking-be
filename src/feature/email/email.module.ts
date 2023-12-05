@@ -8,6 +8,7 @@ import { ReportModule } from '../report/report.module';
 import { TemplateModule } from './template/template.module';
 import { DestinationModule } from './destination/destination.module';
 import { SenderModule } from './sender/sender.module';
+import { SubjectModule } from './subject/subject.module';
 
 @Module({
   controllers: [
@@ -19,6 +20,7 @@ import { SenderModule } from './sender/sender.module';
     TemplateModule,
     SenderModule,
     DestinationModule,
+    SubjectModule,
   ],
   providers: [
     EmailDatasource,
