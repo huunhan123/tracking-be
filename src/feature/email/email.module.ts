@@ -10,6 +10,7 @@ import { DestinationModule } from './destination/destination.module';
 import { SenderModule } from './sender/sender.module';
 import { SubjectModule } from './subject/subject.module';
 import { LinkModule } from './link/link.module';
+import { ProxyModule } from './proxy/proxy.module';
 
 @Module({
   controllers: [
@@ -23,6 +24,7 @@ import { LinkModule } from './link/link.module';
     DestinationModule,
     SubjectModule,
     LinkModule,
+    ProxyModule,
   ],
   providers: [
     EmailDatasource,

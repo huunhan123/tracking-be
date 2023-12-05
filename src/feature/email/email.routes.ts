@@ -6,6 +6,7 @@ import { DESTINATION_ROUTE } from './destination/destination.routes';
 import { TEMPLATE_ROUTE } from './template/template.routes';
 import { SUBJECT_ROUTE } from './subject/subject.routes';
 import { LINK_ROUTE } from './link/link.routes';
+import { PROXY_ROUTE } from './proxy/proxy.routes';
 
 export const EMAIL_ROUTE: RouteTree = {
   path: 'email',
@@ -16,5 +17,6 @@ export const EMAIL_ROUTE: RouteTree = {
     TEMPLATE_ROUTE,
     SUBJECT_ROUTE,
     LINK_ROUTE,
+    PROXY_ROUTE,
   ],
 };
