@@ -27,8 +27,8 @@ export class TemplateRepository {
     return applyQueries;
   }
 
-  async addTemplate(senders: EmailTemplateRequestDto[]): Promise<void> {
-    return await this.datasource.addTemplate(senders);
+  async addTemplate(templateDto: EmailTemplateRequestDto): Promise<void> {
+    return await this.datasource.addTemplate(templateDto);
   }
 
   async getTemplate(productName: string): Promise<EmailTemplateModel> {
@@ -36,6 +36,10 @@ export class TemplateRepository {
     const model = new EmailTemplateModel(entity);
 
     return model;
+  }
+
+  async deleteTemplate(id: string): Promise<void> {
+    await this.datasource.deleteTemplate(id);
   }
 
   private compareProduct(

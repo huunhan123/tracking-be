@@ -6,5 +6,5 @@ export interface EmailTemplateResponseDto {
 
 export interface EmailTemplateRequestDto {
   name: string,
-  url: string,
+  content: string,
 }

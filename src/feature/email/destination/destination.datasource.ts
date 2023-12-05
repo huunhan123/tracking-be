@@ -20,4 +20,8 @@ export class DestinationDatasource {
   async addDestination(destinations: EmailDestinationRequestDto[]): Promise<void> {
     await this.emailDestinationSchema.insertMany(destinations);
   }
+
+  async deleteDestination(id: string): Promise<void> {
+    await this.emailDestinationSchema.deleteOne({"_id": id});
+  }
 }

@@ -1,9 +1,12 @@
-export interface EmailSenderRequestDto {
-  email: string,
-  password: string,
+import { IsOptional, IsString } from "class-validator"
+
+export class EmailRequestDto {
+  @IsString()
+  @IsOptional()
+  templateName: string;
+
+  @IsOptional()
+  @IsString()
+  subject: string;
 }
 
-export interface EmailDestinationRequestDto {
-  name: string,
-  email: string,
-}

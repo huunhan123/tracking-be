@@ -38,6 +38,10 @@ export class SenderRepository {
     return model;
   }
 
+  async deleteSender(id: string): Promise<void> {
+    await this.datasource.deleteSender(id);
+  }
+
   private compareProduct(
     a: EmailSenderModel,
     b: EmailSenderModel,

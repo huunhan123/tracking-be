@@ -31,6 +31,10 @@ export class DestinationRepository {
     return await this.datasource.addDestination(destinations);
   }
 
+  async deleteDestination(id: string): Promise<void> {
+    await this.datasource.deleteDestination(id);
+  }
+
   private compareProduct(
     a: EmailDestinationModel,
     b: EmailDestinationModel,

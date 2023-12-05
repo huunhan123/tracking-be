@@ -1,3 +1,4 @@
+import { EmailTemplateRequestDto } from './template.dto';
 import { EmailTemplateEntity } from './template.entity';
 
 export class EmailTemplateModel {
@@ -11,3 +12,13 @@ export class EmailTemplateModel {
     this.url = entity.url;
   }
 }
+
+// export class EmailTemplateRequestModel {
+//   name: string;
+//   url: string;
+
+//   constructor(dto: EmailTemplateRequestDto) {
+//     this.name = dto.name;
+//     this.url = dto.url;
+//   }
+// }

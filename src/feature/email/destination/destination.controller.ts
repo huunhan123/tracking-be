@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Delete, Query, ValidationPipe } from '@nestjs/common';
 
 import { DestinationRepository } from './destination.repository';
 import { EmailDestinationRequestDto, EmailDestinationResponseDto } from './destination.dto';
@@ -28,5 +28,10 @@ export class DestinationController {
     await this.repository.addDestination(resource);
   }
 
-  
+  @Delete('delete/:id')
+  async deleteDestination(
+    @Param('id') id: string,
+  ): Promise<void> {
+    await this.repository.deleteDestination(id);
+  }
 }

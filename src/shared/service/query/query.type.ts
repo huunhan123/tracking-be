@@ -11,24 +11,6 @@ import {
 } from 'class-validator';
 
 export class Queries {
-  @IsOptional()
-  @IsString()
-  @IsIn([
-    'ram',
-    'cpu',
-    'psu',
-    'ssd',
-    'hdd',
-    'mouse',
-    'keyboard',
-    'mainboard',
-    'vga',
-  ])
-  category?: string;
-
-  @IsOptional()
-  @IsNotEmpty()
-  vendor?: string;
 
   @IsOptional()
   @IsNotEmpty()

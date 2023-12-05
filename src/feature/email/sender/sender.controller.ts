@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Post, Delete, Query, ValidationPipe, Param } from '@nestjs/common';
 
 import { SenderRepository } from './sender.repository';
 import { EmailSenderRequestDto, EmailSenderResponseDto } from './sender.dto';
@@ -26,5 +26,12 @@ export class SenderController {
     @Body() resource: EmailSenderRequestDto[],
   ): Promise<void> {
     await this.repository.addSender(resource);
+  }
+
+  @Delete('delete/:id')
+  async deleteSender(
+    @Param('id') id: string,
+  ): Promise<void> {
+    await this.repository.deleteSender(id);
   }
 }

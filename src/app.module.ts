@@ -3,6 +3,8 @@ import { RouterModule } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
+import { ConfigModule } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 
 import { join } from 'path';
 
@@ -10,13 +12,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { FeaturesModule } from './feature/feature.module';
 import { APP_ROUTES } from './app.routes';
-// import { CoreModule } from './core/core.module';
-import { ConfigModule } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
-    // CoreModule,
     FeaturesModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'client'),

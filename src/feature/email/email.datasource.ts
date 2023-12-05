@@ -10,6 +10,7 @@ import { DestinationDatasource } from './destination/destination.datasource';
 import { TemplateDatasource } from './template/template.datasource';
 import { ReportRequestDto } from '../report/report.dto';
 import { Queries } from 'src/shared/service/query/query.type';
+import { StringDecoder } from 'string_decoder';
 
 @Injectable()
 export class EmailDatasource {
@@ -22,8 +23,8 @@ export class EmailDatasource {
     private templateDatasource: TemplateDatasource,
   ) {}
 
-  async sendEmail(productName: string, queries: Queries): Promise<void> {
-    const template = await this.getEmailTemplateUrl(productName);
+  async sendEmail(productName: string, subject: string): Promise<void> {
+    const template = await this.getEmailTemplateFileName(productName);
     const destinations = await this.destinationDatasource.getDestinations();
     const reports: ReportRequestDto[] = [];
 
@@ -34,7 +35,7 @@ export class EmailDatasource {
       const sendMailOptions: ISendMailOptions = {
         from: senderMail.email,
         to: destination.email,
-        subject: "Send mail",
+        subject: subject,
         template: template,
         context: {
           data: {
@@ -66,16 +67,16 @@ export class EmailDatasource {
     });
   }
 
-  private async getEmailTemplateUrl(productName: string): Promise<string> {
+  private async getEmailTemplateFileName(productName: string): Promise<string> {
     const emailTemplate = await this.templateDatasource.getTemplate(productName);
 
-    return emailTemplate.url || '';
+    return emailTemplate.name || '';
   }
 
   private updateTransporter(sender: EmailSenderEntity): void {    
     const transport: SMTPTransport.Options = {
       host: this.configs.get<string>('SMTP_HOST'),
-      port: this.configs.get<number>('PORT'),
+      port: this.configs.get<number>('MAIL_PORT'),
       auth: {
         user: sender.email,
         pass: sender.password,

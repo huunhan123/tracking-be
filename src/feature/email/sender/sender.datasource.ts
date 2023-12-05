@@ -26,4 +26,8 @@ export class SenderDatasource {
 
     return entities[Math.floor(Math.random() * entities.length)]
   }
+
+  async deleteSender(id: string): Promise<void> {
+    await this.emailSenderSchema.deleteOne({"_id": id});
+  }
 }

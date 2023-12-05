@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Post, Query, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Delete, Query, ValidationPipe } from '@nestjs/common';
 
 import { TemplateRepository } from './template.repository';
-import { EmailTemplateRequestDto } from './template.dto';
+import { EmailTemplateRequestDto, EmailTemplateResponseDto } from './template.dto';
 import { ResponseModel } from 'src/shared/model/response.model';
 import { TemplateView } from './template.view';
 import { Queries } from 'src/shared/service/query/query.type';
@@ -14,7 +14,7 @@ export class TemplateController {
   ) {}
 
   @Get()
-  async getTemplates(@Query(ValidationPipe) queries: Queries): Promise<ResponseModel<EmailTemplateRequestDto[]>> {
+  async getTemplates(@Query(ValidationPipe) queries: Queries): Promise<ResponseModel<EmailTemplateResponseDto[]>> {
     const data = await this.repository.getTemplates(queries);
 
     const response = this.view.createTemplates(data);
@@ -24,9 +24,16 @@ export class TemplateController {
 
   @Post('add')
   async addTemplate(
-    @Body() resource: EmailTemplateRequestDto[],
+    @Body() resource: EmailTemplateRequestDto,
   ): Promise<void> {
     await this.repository.addTemplate(resource);
+  }
+
+  @Delete('delete/:id')
+  async deleteTemplate(
+    @Param('id') id: string,
+  ): Promise<void> {
+    await this.repository.deleteTemplate(id);
   }
   
 }
