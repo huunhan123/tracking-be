@@ -9,6 +9,7 @@ import { TemplateModule } from './template/template.module';
 import { DestinationModule } from './destination/destination.module';
 import { SenderModule } from './sender/sender.module';
 import { SubjectModule } from './subject/subject.module';
+import { LinkModule } from './link/link.module';
 
 @Module({
   controllers: [
@@ -21,6 +22,7 @@ import { SubjectModule } from './subject/subject.module';
     SenderModule,
     DestinationModule,
     SubjectModule,
+    LinkModule,
   ],
   providers: [
     EmailDatasource,
