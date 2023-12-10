@@ -15,6 +15,9 @@ export class EmailSender extends BaseEntity {
 
 	@Prop({ required: true })
 	tag: string;
+
+	@Prop({ required: true })
+	nextTime: number;
 }
 
 export const EmailSenderSchema = SchemaFactory.createForClass(EmailSender);

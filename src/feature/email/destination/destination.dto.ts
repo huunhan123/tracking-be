@@ -5,7 +5,6 @@ export interface EmailDestinationResponseDto {
   tag: string,
 }
 
-
 export interface EmailDestinationRequestDto {
   name: string,
   email: string,

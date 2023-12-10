@@ -1,6 +1,6 @@
 export interface EmailSubjectEntity {
   _id: string,
   subject: string,
-  type: string,
+  greeting: boolean,
   tag: string,
 }

@@ -37,6 +37,12 @@ export class TemplateDatasource {
     return emailTemplate as EmailTemplateEntity;
   }
 
+  async getRandomTemplate(): Promise<EmailTemplateEntity> {
+    const entities = await this.emailTemplateSchema.find().exec();
+
+    return entities[Math.floor(Math.random() * entities.length)]
+  }
+
   async deleteTemplate(id: string): Promise<void> {
     await this.emailTemplateSchema.deleteOne({"_id": id});
   }

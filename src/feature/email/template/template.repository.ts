@@ -38,6 +38,13 @@ export class TemplateRepository {
     return model;
   }
 
+  async getRandomTemplate(): Promise<EmailTemplateModel> {
+    const entity = await this.datasource.getRandomTemplate();
+    const model = new EmailTemplateModel(entity);
+
+    return model;
+  }
+
   async deleteTemplate(id: string): Promise<void> {
     await this.datasource.deleteTemplate(id);
   }

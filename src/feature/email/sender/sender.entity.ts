@@ -3,4 +3,5 @@ export interface EmailSenderEntity {
   email: string,
   password: string,
   tag: string,
+  nextTime: number,
 }

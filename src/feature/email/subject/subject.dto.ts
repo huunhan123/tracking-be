@@ -1,12 +1,12 @@
 export interface EmailSubjectResponseDto {
   id: string,
   subject: string,
-  type: string,
+  greeting: boolean,
   tag: string,
 }
 
 export interface EmailSubjectRequestDto {
   subject: string,
-  type: string,
+  greeting: boolean,
   tag: string,
 }

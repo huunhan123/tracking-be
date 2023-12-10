@@ -13,7 +13,7 @@ export class DestinationRepository {
     private queriesService: QueryService,
   ) {}
 
-  async getDestinations(queries: Queries): Promise<{ data: EmailDestinationModel[]; totalRows: number }> {
+  async getDestinations(queries?: Queries): Promise<{ data: EmailDestinationModel[]; totalRows: number }> {
     const entities = await this.datasource.getDestinations();
     const models = entities.map(entity => new EmailDestinationModel(entity));
 

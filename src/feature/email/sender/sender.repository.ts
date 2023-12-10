@@ -4,7 +4,7 @@ import { SenderDatasource } from './sender.datasource';
 import { EmailSenderRequestDto } from './sender.dto';
 import { Queries } from 'src/shared/service/query/query.type';
 import { QueryService } from 'src/shared/service/query/query.service';
-import { EmailSenderModel } from './sender.model';
+import { EmailSenderModel, EmailSenderRequestModel } from './sender.model';
 
 @Injectable()
 export class SenderRepository {
@@ -14,21 +14,29 @@ export class SenderRepository {
   ) {}
 
   async getSenders(queries: Queries): Promise<{ data: EmailSenderModel[]; totalRows: number }> {
-    const entities = await this.datasource.getSenders();
-    const models = entities.map(entity => new EmailSenderModel(entity));
+    const {page, rpp} = queries;
+    
+    const entities = await this.datasource.getSenders(page, rpp);
+    // const models = entities.map(entity => new EmailSenderModel(entity));
 
-    const applyQueries = this.queriesService.applyQueries(
-      models,
-      queries,
-      (a: EmailSenderModel, b: EmailSenderModel): number =>
-        this.compareProduct(a, b, queries.orderBy),
-    );
+    // const applyQueries = this.queriesService.applyQueries(
+    //   models,
+    //   queries,
+    //   (a: EmailSenderModel, b: EmailSenderModel): number =>
+    //     this.compareProduct(a, b, queries.orderBy),
+    // );
 
-    return applyQueries;
+    // return applyQueries;
+    return {
+      data: entities.data.map(entity => new EmailSenderModel(entity)),
+      totalRows: entities.totalRows,
+    };
   }
 
   async addSender(senders: EmailSenderRequestDto[]): Promise<void> {
-    return await this.datasource.addSender(senders);
+    const model = senders.map(sender => new EmailSenderRequestModel(sender));
+
+    return await this.datasource.addSender(model);
   }
 
   async getRandomSender(): Promise<EmailSenderModel> {
@@ -36,6 +44,12 @@ export class SenderRepository {
     const model = new EmailSenderModel(entity);
 
     return model;
+  }
+
+  async updateSender(id: string, sender: EmailSenderRequestDto): Promise<void> {
+    const model = new EmailSenderRequestModel(sender);
+    
+    await this.datasource.updateSender(id, model);
   }
 
   async deleteSender(id: string): Promise<void> {

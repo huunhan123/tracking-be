@@ -10,7 +10,7 @@ export class EmailController {
   ) {}
 
   @Post('send-email')
-  async sendEmail(@Body() resource: EmailRequestDto): Promise<void> {
-    await this.repository.sendEmail(resource);
+  async sendEmails(@Body() resource: EmailRequestDto): Promise<void> {
+    await this.repository.sendEmails();
   }
 }

@@ -11,7 +11,7 @@ export class EmailSubject extends BaseEntity {
 	subject: string;
 
 	@Prop({ required: true })
-	type: string;
+	greeting: boolean;
 
 	@Prop({ required: true })
 	tag: string;

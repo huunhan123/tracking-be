@@ -3,6 +3,7 @@ export interface EmailSenderResponseDto {
   email: string,
   password: string,
   tag: string,
+  nextTime: number,
 }
 
 export interface EmailSenderRequestDto {

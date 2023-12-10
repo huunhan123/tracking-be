@@ -4,73 +4,88 @@ import { ConfigService } from '@nestjs/config';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 import { EmailSenderEntity } from './email.entity';
-import { ReportDatasource } from '../report/report.datasource';
-import { SenderDatasource } from './sender/sender.datasource';
-import { DestinationDatasource } from './destination/destination.datasource';
-import { TemplateDatasource } from './template/template.datasource';
 import { ReportRequestDto } from '../report/report.dto';
-import { Queries } from 'src/shared/service/query/query.type';
-import { StringDecoder } from 'string_decoder';
+import { ReportRepository } from '../report/report.repository';
+import { SenderRepository } from './sender/sender.repository';
+import { DestinationRepository } from './destination/destination.repository';
+import { TemplateRepository } from './template/template.repository';
+import { EmailSenderModel } from './sender/sender.model';
+import { LinkRepository } from './link/link.repository';
+import { SubjectRepository } from './subject/subject.repository';
 
 @Injectable()
 export class EmailDatasource {
   constructor(
     private mailerService: MailerService,
     private configs: ConfigService,
-    private reportDatasource: ReportDatasource,
-    private senderDatasource: SenderDatasource,
-    private destinationDatasource:DestinationDatasource,
-    private templateDatasource: TemplateDatasource,
+    private reportRepository: ReportRepository,
+    private senderRepository: SenderRepository,
+    private destinationRepository:DestinationRepository,
+    private templateRepository: TemplateRepository,
+    private linkRepository: LinkRepository,
+    private subjectRepository: SubjectRepository,
   ) {}
 
-  async sendEmail(productName: string, subject: string): Promise<void> {
-    const template = await this.getEmailTemplateFileName(productName);
-    const destinations = await this.destinationDatasource.getDestinations();
+  async sendEmails(): Promise<void> {
+    const destinations = await this.destinationRepository.getDestinations();
     const reports: ReportRequestDto[] = [];
 
-    const sendMailPromise = destinations.map(async (destination) => {
-      const senderMail = await this.senderDatasource.getRandomSender();
+    for (const destination of destinations.data) {
+      const senderMail = await this.getSenderExpired();
+      const link = await this.linkRepository.getRandomLink();
+      const subject = await this.subjectRepository.getRandomSubject();
+      const template = await this.templateRepository.getRandomTemplate();
+
       this.updateTransporter(senderMail)
 
       const sendMailOptions: ISendMailOptions = {
         from: senderMail.email,
         to: destination.email,
-        subject: subject,
-        template: template,
+        subject: subject.subject,
+        template: template.name,
         context: {
           data: {
             name: destination.name,
-            link: 'https://google.com/',
+            link: link.link,
             email: destination.email,
           },
         },
         transporterName: 'default',
       };
+
       const report: ReportRequestDto = {
         user: destination.email,
-        product: productName,
+        product: template.name,
         sender: senderMail.email,
-        template: template,
+        template: template.name,
         sendAt: new Date().getTime().toString(),
       };
-      reports.push(report);
 
-      this.mailerService.sendMail(sendMailOptions);
-    });
-    
-    const sendMail = await Promise.allSettled(sendMailPromise);
-
-    sendMail.forEach((send, index) => {
-      if(send.status === 'fulfilled') {
-        this.reportDatasource.addReport(reports[index]);
-      }
-    });
+      const sent = await this.mailerService.sendMail(sendMailOptions);
+      console.log(sent);
+      await this.reportRepository.addReport(report)
+      await this.updateSenderExpiredTime(senderMail);
+    }
   }
 
-  private async getEmailTemplateFileName(productName: string): Promise<string> {
-    const emailTemplate = await this.templateDatasource.getTemplate(productName);
+  private async getSenderExpired(): Promise<EmailSenderModel> {
+    const sender = await this.senderRepository.getRandomSender();
+    if (sender.nextTime > new Date().getTime()) {
+      await this.getSenderExpired();
+    }
 
-    return emailTemplate.name || '';
+    return sender;
+  }
+
+  private async updateSenderExpiredTime(model: EmailSenderModel): Promise<void> {
+    const dto = {
+      email: model.email,
+      password: model.password,
+      tag: model.tag,
+      nextTime: model.nextTime,
+    };
+
+    await this.senderRepository.updateSender(model.id, dto);
   }
 
   private updateTransporter(sender: EmailSenderEntity): void {    

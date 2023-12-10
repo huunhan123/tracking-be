@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 
 import { EmailSenderEntity } from './sender.entity';
 import { EmailSender } from './sender.schema';
-import { EmailSenderRequestDto } from './sender.dto';
+import { EmailSenderRequestModel } from './sender.model';
 
 @Injectable()
 export class SenderDatasource {
@@ -13,11 +13,14 @@ export class SenderDatasource {
     @InjectModel(EmailSender.name) private emailSenderSchema: Model<EmailSender>,
   ) {}
 
-  async getSenders(): Promise<EmailSenderEntity[]> {
-    return await this.emailSenderSchema.find().exec();
+  async getSenders(page: number, rpp: number): Promise<{data: EmailSenderEntity[], totalRows: number}> {
+    const totalRows = await this.emailSenderSchema.estimatedDocumentCount();
+    const data = await this.emailSenderSchema.find().skip((page - 1) * rpp).limit(rpp).exec();
+
+    return {totalRows, data};
   }
 
-  async addSender(senders: EmailSenderRequestDto[]): Promise<void> {
+  async addSender(senders: EmailSenderRequestModel[]): Promise<void> {
     await this.emailSenderSchema.insertMany(senders);
   }
 
@@ -29,5 +32,9 @@ export class SenderDatasource {
 
   async deleteSender(id: string): Promise<void> {
     await this.emailSenderSchema.deleteOne({"_id": id});
+  }
+
+  async updateSender(id: string, senders: EmailSenderRequestModel): Promise<void> {
+    await this.emailSenderSchema.updateOne({_id: id}, senders);
   }
 }
