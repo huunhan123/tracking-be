@@ -11,10 +11,17 @@ export class DestinationDatasource {
     @InjectModel(EmailDestination.name) private emailDestinationSchema: Model<EmailDestination>
   ) {}
 
-  async getDestinations(limit?: number): Promise<EmailDestination[]> {
-    const destinations = await this.emailDestinationSchema.find().exec();
-    
-    return destinations;
+  async getDestinations(page?: number, rpp?: number): Promise<{data: EmailDestination[], totalRows: number}> {
+    let data;
+    const totalRows = await this.emailDestinationSchema.estimatedDocumentCount();
+
+    if (page && rpp) {
+      data = await this.emailDestinationSchema.find().skip((page - 1) * rpp).limit(rpp).exec();
+    } else {
+      data = await this.emailDestinationSchema.find().exec();
+    }
+
+    return {totalRows, data};
   }
 
   async addDestination(destinations: EmailDestinationRequestDto[]): Promise<void> {

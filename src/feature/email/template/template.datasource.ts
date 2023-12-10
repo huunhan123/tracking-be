@@ -25,7 +25,7 @@ export class TemplateDatasource {
   async addTemplate(template: EmailTemplateRequestDto): Promise<void> {
     const url = `${this.templateUrl}/${template.name}.ejs`
 
-    await this.emailTemplateSchema.insertMany({name: template.name, url: url});
+    await this.emailTemplateSchema.insertMany({name: template.name, url: url, tag: template.tag});
     fs.writeFileSync(url, template.content, 'utf-8');
     fs.writeFileSync(`dist/views/${template.name}.ejs`, template.content, 'utf-8');
   }

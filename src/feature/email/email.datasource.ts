@@ -41,7 +41,7 @@ export class EmailDatasource {
       const sendMailOptions: ISendMailOptions = {
         from: senderMail.email,
         to: destination.email,
-        subject: subject.subject,
+        subject: subject.greeting ? `${subject.subject} ${destination.name}` : subject.subject,
         template: template.name,
         context: {
           data: {
@@ -62,9 +62,10 @@ export class EmailDatasource {
       };
 
       const sent = await this.mailerService.sendMail(sendMailOptions);
-      console.log(sent);
-      await this.reportRepository.addReport(report)
-      await this.updateSenderExpiredTime(senderMail);
+      if (sent.accepted.length) {
+        this.reportRepository.addReport(report)
+        this.updateSenderExpiredTime(senderMail);
+      }
     }
   }
 

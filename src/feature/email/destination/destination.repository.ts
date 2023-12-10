@@ -14,17 +14,21 @@ export class DestinationRepository {
   ) {}
 
   async getDestinations(queries?: Queries): Promise<{ data: EmailDestinationModel[]; totalRows: number }> {
-    const entities = await this.datasource.getDestinations();
-    const models = entities.map(entity => new EmailDestinationModel(entity));
+    let entities;
+    
+    if (queries) {
+      const {page, rpp} = queries;
+    
+      entities = await this.datasource.getDestinations(page, rpp);
+    } else {
+      entities = await this.datasource.getDestinations();
+    }
+    
 
-    const applyQueries = this.queriesService.applyQueries(
-      models,
-      queries,
-      (a: EmailDestinationModel, b: EmailDestinationModel): number =>
-        this.compareProduct(a, b, queries.orderBy),
-    );
-
-    return applyQueries;
+    return {
+      data: entities.data.map(entity => new EmailDestinationModel(entity)),
+      totalRows: entities.totalRows,
+    };
   }
 
   async addDestination(destinations: EmailDestinationRequestDto[]): Promise<void> {
