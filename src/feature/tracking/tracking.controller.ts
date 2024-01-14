@@ -1,23 +1,17 @@
-// src/tracking/tracking.controller.ts
-
-import { Controller, Get, Res } from '@nestjs/common';
+import { Controller, Get, Res, Param } from '@nestjs/common';
 import { Response } from 'express';
 
-@Controller('track')
+import { ReportRepository } from '../report/report.repository';
+
+@Controller()
 export class TrackingController {
-  private openCount = 0; // Biến đếm số lần mở email.
+  constructor(private reportRepository: ReportRepository) {}
 
-  @Get('pixel.png')
-  trackEmail(@Res() res: Response) {
-    // Tăng biến đếm mỗi khi pixel theo dõi được tải lên từ email.
-    this.openCount++;
-    console.log(this.openCount);
+  @Get('track/:id')
+  async trackEmail(@Param('id') id: string, @Res() res: Response): Promise<void> {
+    const opens = new Date().getTime();
+    await this.reportRepository.updateReport(id, {opens: [opens]});
     
-    // Trả về một pixel 1x1 (vd: 1x1.png) để theo dõi.
-    res.sendFile('1x1.png', { root: './assets' }); // Thay đổi đường dẫn pixel tùy theo tên và định dạng của bạn.
-  }
-
-  getOpenCount(): number {
-    return this.openCount;
+    res.sendFile('1x1.png', { root: './assets' });
   }
 }

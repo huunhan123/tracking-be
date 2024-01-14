@@ -15,7 +15,7 @@ export class ReportController {
 
   @Get('report')
   async getReport(@Query(ValidationPipe) queries: Queries): Promise<ResponseModel<ReportResponseDto[]>> {
-    const model = await this.repository.getReport(queries);
+    const model = await this.repository.getReports(queries);
     const dto = this.view.createReport(model);
 
     return dto;    

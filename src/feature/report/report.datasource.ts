@@ -12,11 +12,34 @@ export class ReportDatasource {
     @InjectModel(ReportTemplate.name) private reportTemplateSchema: Model<ReportTemplate>
   ) {}
 
-  async getReport(): Promise<ReportEntity[]> {
+  async getReports(): Promise<ReportEntity[]> {
     return await this.reportTemplateSchema.find().exec();
   }
 
-  async addReport(report: ReportRequestDto): Promise<void> {
-    await this.reportTemplateSchema.insertMany(report);
+  async addReport(report: ReportRequestDto) {
+    return await this.reportTemplateSchema.insertMany(report);
+  }
+
+  async getReportById(id: string): Promise<ReportEntity> {
+    return await this.reportTemplateSchema.findById(id);
+  }
+
+  async updateReport(id: string, report: Partial<ReportRequestDto>) {
+    const hasOpenField = 'opens' in report;
+
+    const updateObject: any = {
+      $set: report,
+    };
+
+    if (hasOpenField) {
+      updateObject.$push = { opens: { $each: report.opens } };
+      delete updateObject.$set.opens;
+    }
+
+    return await this.reportTemplateSchema.updateOne({_id: id}, updateObject, {new: true});
+  }
+
+  async deleteReportById(id: string): Promise<void> {
+    await this.reportTemplateSchema.deleteOne({_id: id});
   }
 }

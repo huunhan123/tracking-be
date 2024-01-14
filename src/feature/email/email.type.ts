@@ -1,3 +1,7 @@
+import { EmailDestinationModel } from './destination/destination.model'
+import { EmailSubjectModel } from './subject/subject.model'
+import { EmailTemplateModel } from './template/template.model'
+
 export type EmailSender = {
   email: string,
   password: string,
@@ -17,4 +21,13 @@ export type Destination = {
 export type UserInfo = {
   name: string,
   email: string,
+}
+
+export type MailOption = {
+  sender: string,
+  destination: EmailDestinationModel,
+  subject: EmailSubjectModel,
+  template: EmailTemplateModel,
+  link: string,
+  reportID: string,  
 }

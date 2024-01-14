@@ -12,8 +12,8 @@ async function bootstrap() {
   const cert = configService.get<string>('SSL_PUBLIC_CERTIFICATE');
   
   const httpsOptions = {
-    key: fs.readFileSync('/shared/server.decrypted.key', 'utf8'),
-    cert: fs.readFileSync('/shared/server.crt', 'utf8'),
+    key: fs.readFileSync(key, 'utf8'),
+    cert: fs.readFileSync(cert, 'utf8'),
   };
 
   const app = await NestFactory.create(AppModule, {
@@ -27,6 +27,6 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   const port = configService.get<number>('PORT');
-  await app.listen(3001);
+  await app.listen(port);
 }
 bootstrap();

@@ -4,6 +4,7 @@ export interface ReportResponseDto {
   product: string,
   sender: string,
   template: string,
+  opens: number[],
 }
 
 export interface ReportRequestDto {
@@ -12,4 +13,5 @@ export interface ReportRequestDto {
   sender: string,
   template: string,
   sendAt: string,
+  opens: number[],
 }

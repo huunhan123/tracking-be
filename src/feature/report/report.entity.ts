@@ -4,5 +4,6 @@ export interface ReportEntity {
   product: string,
   sender: string,
   template: string,
+  opens: number[],
   sendAt: string,
 }

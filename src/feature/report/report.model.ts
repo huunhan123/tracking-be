@@ -6,6 +6,7 @@ export class ReportModel {
   product: string;
   sender: string;
   template: string;
+  opens: number[];
   sendAt: string;
 
   constructor(entity: ReportEntity) {
@@ -14,6 +15,7 @@ export class ReportModel {
     this.product = entity.product;
     this.sender = entity.sender;
     this.template = entity.template;
+    this.opens = entity.opens;
     this.sendAt = entity.sendAt;
   }
 }

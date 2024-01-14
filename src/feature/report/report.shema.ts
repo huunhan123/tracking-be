@@ -21,6 +21,9 @@ export class ReportTemplate extends BaseEntity {
 
 	@Prop({ required: true })
   sendAt: string;
+
+	@Prop({ required: true})
+	opens: number[]
 }
 
 export const ReportTemplateSchema = SchemaFactory.createForClass(ReportTemplate);

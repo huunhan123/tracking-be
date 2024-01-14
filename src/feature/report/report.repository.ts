@@ -13,8 +13,8 @@ export class ReportRepository {
     private queriesService: QueryService,
   ) {}
 
-  async getReport(queries: Queries): Promise<{ data: ReportModel[]; totalRows: number }> {
-    const entities = await this.datasource.getReport();
+  async getReports(queries: Queries): Promise<{ data: ReportModel[]; totalRows: number }> {
+    const entities = await this.datasource.getReports();
     
     const models =  entities.map(entity => new ReportModel(entity));
 
@@ -28,8 +28,23 @@ export class ReportRepository {
     return applyQueries;
   }
 
-  async addReport(report: ReportRequestDto): Promise<void> {
+  async addReport(report: ReportRequestDto) {
     return await this.datasource.addReport(report);
+  }
+
+  async getReportById(id: string): Promise<ReportModel> {
+    const entity = await this.datasource.getReportById(id);
+    const model = new ReportModel(entity);
+
+    return model;
+  }
+
+  async updateReport(id: string, updateReport: Partial<ReportRequestDto>) {
+    return await this.datasource.updateReport(id, updateReport);
+  }
+
+  async deleteReportById(id: string): Promise<void> {
+    await this.datasource.deleteReportById(id);
   }
 
   private compareProduct(
