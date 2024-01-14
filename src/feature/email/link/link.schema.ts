@@ -8,6 +8,9 @@ export type EmailLinkDocument = HydratedDocument<EmailLink>;
 @Schema()
 export class EmailLink extends BaseEntity {
 	@Prop({ required: true })
+	info: string;
+
+	@Prop({ required: true })
 	link: string;
 
 	@Prop({ required: true })
