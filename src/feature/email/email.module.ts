@@ -4,6 +4,13 @@ import { EmailController } from './email.controller';
 import { TrackingModule } from '../tracking/tracking.module';
 import { EmailDatasource } from './email.datasource';
 import { EmailRepository } from './email.repository';
+import { ReportModule } from '../report/report.module';
+import { TemplateModule } from './template/template.module';
+import { DestinationModule } from './destination/destination.module';
+import { SenderModule } from './sender/sender.module';
+import { SubjectModule } from './subject/subject.module';
+import { LinkModule } from './link/link.module';
+import { ProxyModule } from './proxy/proxy.module';
 
 @Module({
   controllers: [
@@ -11,6 +18,13 @@ import { EmailRepository } from './email.repository';
   ],
   imports: [
     TrackingModule,
+    ReportModule,
+    TemplateModule,
+    SenderModule,
+    DestinationModule,
+    SubjectModule,
+    LinkModule,
+    ProxyModule,
   ],
   providers: [
     EmailDatasource,

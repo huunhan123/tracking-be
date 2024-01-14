@@ -3,66 +3,115 @@ import { ISendMailOptions, MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 
-import { DESTINATION, EMAILS_SENDER, EMAIL_TEMPLATES } from './email.data';
 import { EmailSenderEntity } from './email.entity';
-import { Destination } from './email.type';
+import { ReportRequestDto } from '../report/report.dto';
 import { ReportRepository } from '../report/report.repository';
+import { SenderRepository } from './sender/sender.repository';
+import { DestinationRepository } from './destination/destination.repository';
+import { TemplateRepository } from './template/template.repository';
+import { EmailSenderModel } from './sender/sender.model';
+import { LinkRepository } from './link/link.repository';
+import { SubjectRepository } from './subject/subject.repository';
+import { MailOption } from './email.type';
 
 @Injectable()
 export class EmailDatasource {
-  private readonly EMAILS_SENDER = EMAILS_SENDER;
-  private readonly EMAIL_TEMPLATES = EMAIL_TEMPLATES;
-  private readonly DESTINATION = DESTINATION;
-
   constructor(
     private mailerService: MailerService,
     private configs: ConfigService,
     private reportRepository: ReportRepository,
+    private senderRepository: SenderRepository,
+    private destinationRepository:DestinationRepository,
+    private templateRepository: TemplateRepository,
+    private linkRepository: LinkRepository,
+    private subjectRepository: SubjectRepository,
   ) {}
 
-  async sendEmail(productName: string): Promise<void> {
-    const template = this.getEmailTemplateUrl(productName);
-    const destinations = this.getDestinations(1);
+  async sendEmails(): Promise<void> {
+    const destinations = await this.destinationRepository.getDestinations();
 
-    const sendMailPromise = destinations.map(destination => {
-      const senderMail = this.getSenderMail();
+    for (const destination of destinations.data) {
+      const senderMail = await this.getSenderExpired();
+      const link = await this.linkRepository.getRandomLink();
+      const subject = await this.subjectRepository.getRandomSubject();
+      const template = await this.templateRepository.getRandomTemplate();
+
+      const report: ReportRequestDto = {
+        user: destination.email,
+        product: template.name,
+        sender: senderMail.email,
+        template: template.name,
+        sendAt: new Date().getTime().toString(),
+        opens: [],
+      };
+
+      const addReport = await this.reportRepository.addReport(report);
+      const reportID =  addReport[0]._id;
+
       this.updateTransporter(senderMail)
 
-      const sendMailOptions: ISendMailOptions = {
-        from: senderMail.email,
-        to: destination.email,
-        subject: "Send mail",
-        template: template,
-        context: {
-          data: {
-            name: destination.name,
-            link: 'https://google.com/',
-            email: destination.email,
-          },
+      const sendMailOptions = this.createMailOptions({
+        sender: senderMail.email,
+        destination,
+        subject,
+        template,
+        link: link.link,
+        reportID: reportID,  
+      });
+      const sent = await this.mailerService.sendMail(sendMailOptions);
+      
+      if (sent.accepted.length) {
+        this.updateSenderExpiredTime(senderMail);
+      } else {
+        this.reportRepository.deleteReportById(reportID);
+      }
+    }
+  }
+
+  private createMailOptions(mailOption: MailOption): ISendMailOptions {
+    const options = {
+      from: mailOption.sender,
+      to: mailOption.destination.email,
+      subject: mailOption.subject.greeting ? `${mailOption.subject.subject} ${mailOption.destination.name}` : mailOption.subject.subject,
+      template: mailOption.template.name,
+      context: {
+        data: {
+          name: mailOption.destination.name,
+          link: mailOption.link,
+          email: mailOption.destination.email,
+          uuid: mailOption.reportID,
         },
-        transporterName: 'default',
-      };
-  
-      this.mailerService.sendMail(sendMailOptions);
-    });
-    
-    await Promise.all(sendMailPromise);
+      },
+      transporterName: 'default',
+    };
+
+    return options;
   }
 
-  private getSenderMail(): EmailSenderEntity {
-    return this.EMAILS_SENDER[Math.floor(Math.random() * this.EMAILS_SENDER.length)];
+  private async getSenderExpired(): Promise<EmailSenderModel> {
+    const sender = await this.senderRepository.getRandomSender();
+    if (sender.nextTime > new Date().getTime()) {
+      await this.getSenderExpired();
+    }
+
+    return sender;
   }
 
-  private getEmailTemplateUrl(productName: string): string {
-    const emailTemplate = this.EMAIL_TEMPLATES.find(el => el.name.toLowerCase() === productName.toLowerCase());
+  private async updateSenderExpiredTime(model: EmailSenderModel): Promise<void> {
+    const dto = {
+      email: model.email,
+      password: model.password,
+      tag: model.tag,
+      nextTime: model.nextTime,
+    };
 
-    return emailTemplate?.url || '';
+    await this.senderRepository.updateSender(model.id, dto);
   }
 
   private updateTransporter(sender: EmailSenderEntity): void {    
     const transport: SMTPTransport.Options = {
       host: this.configs.get<string>('SMTP_HOST'),
-      port: this.configs.get<number>('PORT'),
+      port: this.configs.get<number>('MAIL_PORT'),
       auth: {
         user: sender.email,
         pass: sender.password,
@@ -70,9 +119,5 @@ export class EmailDatasource {
     };
     
     this.mailerService.addTransporter('default', transport);
-  }
-
-  private getDestinations(limit: number): Destination[] {
-    return this.DESTINATION;
   }
 }
